@@ -1,0 +1,16 @@
+[project]
+name = "nppe2"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "matplotlib>=3.10.8",
+    "numpy>=2.2.6",
+    "pandas>=2.3.3",
+    "pip>=25.3",
+    "scikit-learn>=1.7.2",
+    "torch>=2.9.1",
+    "tqdm>=4.67.1",
+    "trackio>=0.12.0",
+]
