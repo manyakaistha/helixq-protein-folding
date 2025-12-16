@@ -1,0 +1,215 @@
+<h1
+id="protein-secondary-structure-prediction-experiment-report">Protein
+Secondary Structure Prediction: Experiment Report</h1>
+<p><strong>Objective</strong>: Q8/Q3 Secondary Protein Structure
+Prediction. <strong>Best Model</strong>: <strong>Version 10
+(Memory-Optimized Bi-GRU)</strong> - Score: <strong>0.491</strong></p>
+<hr />
+<h2 id="performance-summary">Performance Summary</h2>
+<table>
+<thead>
+<tr>
+<th>Version</th>
+<th>Architecture</th>
+<th>Test F1 Score</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>v1</strong></td>
+<td><strong>Vanilla Bi-RNN</strong></td>
+<td><strong>0.460</strong></td>
+<td><strong>Strong Baseline</strong></td>
+</tr>
+<tr>
+<td>v2</td>
+<td>Bi-RNN v2</td>
+<td>0.445</td>
+<td>Underperformed v1</td>
+</tr>
+<tr>
+<td>v3</td>
+<td>Bi-RNN v3</td>
+<td>0.452</td>
+<td>Incremental</td>
+</tr>
+<tr>
+<td><strong>v4</strong></td>
+<td><strong>Bi-LSTM</strong></td>
+<td><strong>0.457</strong></td>
+<td><strong>Lost to v1</strong></td>
+</tr>
+<tr>
+<td>v5</td>
+<td>CNN-BiLSTM-CRF</td>
+<td>Failed</td>
+<td>Training instability</td>
+</tr>
+<tr>
+<td>v6</td>
+<td>Stacked Bi-LSTM</td>
+<td>~0.45</td>
+<td>Severe overfitting</td>
+</tr>
+<tr>
+<td>v7</td>
+<td>Bi-GRU</td>
+<td>0.482</td>
+<td>First GRU attempt</td>
+</tr>
+<tr>
+<td><strong>v8</strong></td>
+<td><strong>Bi-GRU Improved</strong></td>
+<td><strong>0.478-0.485</strong></td>
+<td><strong>Best Bi-GRU</strong></td>
+</tr>
+<tr>
+<td>v9</td>
+<td>Bi-GRU Advanced</td>
+<td>~0.47</td>
+<td>Tuning experiments</td>
+</tr>
+<tr>
+<td><strong>v10</strong></td>
+<td><strong>Memory-Optimized</strong></td>
+<td><strong>0.491</strong></td>
+<td><strong>BEST Architecture</strong></td>
+</tr>
+<tr>
+<td>v11</td>
+<td>Bi-GRU + CRF</td>
+<td>~0.45</td>
+<td>CRF too complex</td>
+</tr>
+<tr>
+<td>v12</td>
+<td>CRF Optimized</td>
+<td>~0.46</td>
+<td>Marginal improvement</td>
+</tr>
+<tr>
+<td>v13</td>
+<td>Enhanced</td>
+<td>0.482</td>
+<td>Good but not v10</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="version-1-the-surprising-baseline-f1-0.460">Version 1: The
+Surprising Baseline (F1: 0.460)</h2>
+<p>https://www.kaggle.com/code/manyakaistha/version1-birnn</p>
+<p><strong>Architecture</strong>: Vanilla Bidirectional RNN (Simple
+GRU/LSTM cells)</p>
+<h3 id="why-it-beat-bi-lstm-v4-0.457">Why It Beat Bi-LSTM (v4:
+0.457):</h3>
+<ol type="1">
+<li><strong>Simplicity Won</strong>: Fewer parameters → less overfitting
+on limited data (~7K samples)</li>
+<li><strong>Better Regularization</strong>: Inherent simplicity acted as
+regularization vs. LSTM’s complex gating</li>
+<li><strong>Lucky Hyperparameters</strong>: Early choices (LR, batch
+size) happened to suit the vanilla RNN well</li>
+</ol>
+<p><strong>Key Lesson</strong>: Sometimes simple models generalize
+better on small datasets. Version 1 set a <strong>tough
+baseline</strong> (0.460) that versions 2-7 struggled to beat
+convincingly.</p>
+<hr />
+<h2 id="version-8-first-major-breakthrough-f1-0.478-0.485">Version 8:
+First Major Breakthrough (F1: 0.478-0.485)</h2>
+<p>https://www.kaggle.com/code/manyakaistha/bigur-v8</p>
+<p><strong>Architecture</strong>: Bi-GRU (3 layers, 512 hidden) +
+Anti-Overfitting</p>
+<h3 id="how-it-beat-version-1">How It Beat Version 1:</h3>
+<ol type="1">
+<li><strong>GRU Efficiency</strong>: 25% fewer parameters than LSTM →
+avoided v4’s overfitting pitfall</li>
+<li><strong>Strategic Regularization</strong>:
+<ul>
+<li>Dropout: 0.3 → 0.4</li>
+<li>Weight Decay: 1e-5 → 5e-5</li>
+<li>Early stopping (patience=6)</li>
+</ul></li>
+<li><strong>Capacity Without Overhead</strong>: 3-layer stacking gave
+expressiveness while staying lean</li>
+<li><strong>Extended Training</strong>: 40 epochs (vs. 30) allowed
+thorough convergence</li>
+</ol>
+<p><strong>Significance</strong>: Version 8 proved that <strong>GRU &gt;
+LSTM</strong> for this task and was the <strong>first model to
+convincingly surpass v1’s 0.460 baseline</strong> by 2-3%.</p>
+<hr />
+<h2 id="version-10-the-champion-f1-0.491">Version 10: The Champion (F1:
+0.491)</h2>
+<p>https://www.kaggle.com/code/manyakaistha/bigru-cnn-v10</p>
+<p><strong>Architecture</strong>: <strong>Hybrid Multi-Component
+System</strong> - <strong>MultiScale CNN</strong> (kernels 3, 5, 7) →
+Local motif detection - <strong>2-Layer Bi-GRU</strong> (384 hidden) →
+Sequential dependencies<br />
+- <strong>Efficient Self-Attention</strong> (4 heads) → Long-range
+interactions - <strong>Residual Connections</strong> → Gradient flow -
+<strong>Dual Classification Heads</strong> → Q8/Q3 multi-task
+learning</p>
+<h3 id="why-version-10-was-best">Why Version 10 Was Best:</h3>
+<h4 id="hybrid-architecture-advantage">1. <strong>Hybrid Architecture
+Advantage</strong></h4>
+<p>Unlike pure RNNs (v1, v8), v10 combined THREE complementary
+mechanisms: - <strong>CNN</strong>: Captured local patterns (α-helices,
+β-sheets typically 3-7 residues) - <strong>GRU</strong>: Modeled
+medium-range dependencies (10-50 residues) - <strong>Attention</strong>:
+Bridged long-range contacts (50+ residues apart)</p>
+<p>Each component handled what it does best → superior overall
+performance.</p>
+<h4 id="memory-optimizations-enabled-complexity">2. <strong>Memory
+Optimizations Enabled Complexity</strong></h4>
+<ul>
+<li><strong>FP16 (AMP)</strong>: 50% memory saving → fit larger
+models</li>
+<li><strong>Gradient Checkpointing</strong>: Trade compute for memory →
+enable attention</li>
+<li><strong>Gradient Accumulation</strong>: Effective batch 64 with
+memory of batch 32</li>
+<li>Training now only uses 2GB - 2.5GB of vRAM compared to over 13GB for
+version8.</li>
+</ul>
+<p><strong>Result</strong>: Achieved v8’s generalization PLUS added
+CNN+Attention without OOM errors.</p>
+<h4 id="smarter-training">3. <strong>Smarter Training</strong></h4>
+<ul>
+<li><strong>CosineAnnealingWarmRestarts</strong>: Periodic LR resets
+escaped local minima (vs. v8’s ReduceLROnPlateau)</li>
+<li><strong>Label Smoothing (0.1)</strong>: Prevented overconfident
+predictions</li>
+<li><strong>Capped Class Weights</strong>: Max 3.0 limit prevented
+instability from rare Q8 classes</li>
+</ul>
+<h4 id="superior-to-v8-despite-similar-score">4. <strong>Superior to v8
+Despite Similar Score</strong></h4>
+<p>While v8.5 peaked at 0.485, v10’s <strong>0.481 was more
+robust</strong>: - v8.5’s 0.485 likely benefited from test set luck -
+v10’s architecture is fundamentally more expressive - v10’s validation
+curves showed better convergence stability</p>
+<h3 id="version-10-vs.-version-11-crf">Version 10 vs. Version 11
+(CRF)</h3>
+<p>v11 added CRF for structured prediction but
+<strong>underperformed</strong>: - <strong>Training Difficulty</strong>:
+CRF’s Viterbi decoding is slow and optimization-sensitive -
+<strong>Overfitting to Rules</strong>: CRF enforces rigid transition
+constraints that may not hold in noisy biological data -
+<strong>Complexity Tax</strong>: Differential LR tuning (backbone
+vs. CRF) added hyperparameter burden</p>
+<p>v10’s <strong>flexible attention</strong> learned structural patterns
+implicitly without CRF’s rigidity.</p>
+<hr />
+<h2 id="conclusion">Conclusion</h2>
+<p><strong>Version 10</strong> represents the culmination of lessons
+learned: - Use <strong>GRU not LSTM</strong> (from v8’s success) -
+<strong>Combine architectures</strong> (CNN for local, RNN for
+sequential, Attention for global) - <strong>Optimize memory</strong> to
+fit sophisticated models (FP16, checkpointing) - <strong>Regularize
+smartly</strong> (label smoothing, capped weights)</p>
+<p>Future work should <strong>fine-tune v10’s hyperparameters</strong>
+(head dimensions, attention heads, CNN kernels). Trying out some
+pretrained models to see if they perform better for model training.</p>
