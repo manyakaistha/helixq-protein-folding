@@ -1,16 +1,29 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
 [project]
-name = "nppe2"
+name = "proteinfold-ai"
 version = "0.1.0"
-description = "Add your description here"
+description = "Production Protein Secondary Structure Prediction Platform"
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
-    "matplotlib>=3.10.8",
-    "numpy>=2.2.6",
-    "pandas>=2.3.3",
-    "pip>=25.3",
-    "scikit-learn>=1.7.2",
-    "torch>=2.9.1",
-    "tqdm>=4.67.1",
-    "trackio>=0.12.0",
+    "fastapi>=0.111.0",
+    "uvicorn>=0.30.0",
+    "pydantic>=2.7.0",
+    "torch>=2.0.0",
+    "numpy>=1.24.0",
+    "pandas>=2.0.0",
+    "scikit-learn>=1.4.0",
+    "tqdm>=4.66.0",
+    "matplotlib>=3.8.0",
+    "python-multipart>=0.0.9"
 ]
+
+[tool.setuptools.packages.find]
+include = ["ml*", "backend*"]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests", "backend/tests"]
