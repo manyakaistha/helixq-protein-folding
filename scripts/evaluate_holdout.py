@@ -19,14 +19,18 @@ from ml.evaluation.metrics import evaluate_dataset
 
 def main():
     parser = argparse.ArgumentParser(description="Reproduce validation score on holdout split")
-    parser.add_argument("--data", default="train.csv", help="Path to raw training CSV")
+    parser.add_argument("--data", default="sep-25-dl-gen-ai-nppe-2/train.csv", help="Path to raw training CSV")
     parser.add_argument("--checkpoint", default="best_model_bigru_v10.pth", help="Path to model checkpoint")
     parser.add_argument("--batch-size", type=int, default=32, help="Batch size for validation")
     parser.add_argument("--seed", type=int, default=42, help="Random seed for train/val split")
     args = parser.parse_args()
 
-    print(f"Loading dataset from: {args.data}")
-    df = pd.read_csv(args.data)
+    data_path = args.data
+    if not os.path.exists(data_path) and os.path.exists("sep-25-dl-gen-ai-nppe-2/train.csv"):
+        data_path = "sep-25-dl-gen-ai-nppe-2/train.csv"
+
+    print(f"Loading dataset from: {data_path}")
+    df = pd.read_csv(data_path)
     print(f"Total sequences in dataset: {len(df)}")
 
     # Isolate identical 10% validation split as used in training
