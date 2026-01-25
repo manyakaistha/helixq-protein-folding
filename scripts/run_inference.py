@@ -60,16 +60,16 @@ def main():
     out_ext = os.path.splitext(args.output)[1].lower()
     if out_ext == ".json":
         with open(args.output, "w") as f:
-            json.dump([r.to_dict() for r in results], f, indent=2)
+            json.dump(results, f, indent=2)
     elif out_ext in [".fasta", ".fa"]:
         with open(args.output, "w") as f:
             for r in results:
-                f.write(f">{r.id}_Q8 length={r.length}\n{r.q8}\n")
-                f.write(f">{r.id}_Q3 length={r.length}\n{r.q3}\n")
+                f.write(f">{r['id']}_Q8 length={r['length']}\n{r['q8']}\n")
+                f.write(f">{r['id']}_Q3 length={r['length']}\n{r['q3']}\n")
     else:
         # Default CSV (competition format)
         out_df = pd.DataFrame([
-            {"id": r.id, "sst8": r.q8, "sst3": r.q3}
+            {"id": r["id"], "sst8": r["q8"], "sst3": r["q3"]}
             for r in results
         ])
         out_df.to_csv(args.output, index=False)
