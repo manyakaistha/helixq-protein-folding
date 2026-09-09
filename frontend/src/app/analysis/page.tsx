@@ -6,7 +6,11 @@ import {
   BarChart2,
   PieChart,
   RefreshCw,
-  CheckCircle2
+  CheckCircle2,
+  AlertTriangle,
+  ArrowRight,
+  Layers,
+  Sparkles
 } from 'lucide-react';
 import { analyzeStructure, StructuralAnalysis } from '@/lib/api';
 import { EXAMPLE_PROTEINS, Q8_METADATA, Q3_METADATA } from '@/lib/constants';
@@ -48,47 +52,47 @@ function AnalysisContent() {
     runAnalysis(sequence, seqId);
   };
 
-  // Filter segments
-  const filteredSegments = analysis?.q3_segments.filter((seg) => {
-    if (segmentFilter === 'all') return true;
-    if (segmentFilter === 'helix') return seg.class === 'H';
-    if (segmentFilter === 'strand') return seg.class === 'E';
-    if (segmentFilter === 'coil') return seg.class === 'C';
-    return true;
-  }) || [];
+  const filteredSegments =
+    analysis?.q3_segments.filter((seg) => {
+      if (segmentFilter === 'all') return true;
+      if (segmentFilter === 'helix') return seg.class === 'H';
+      if (segmentFilter === 'strand') return seg.class === 'E';
+      if (segmentFilter === 'coil') return seg.class === 'C';
+      return true;
+    }) || [];
 
   return (
     <div className="space-y-8">
       {/* Header */}
       <div className="space-y-2">
-        <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-indigo-50 dark:bg-indigo-950/60 border border-indigo-200 dark:border-indigo-800 text-indigo-700 dark:text-indigo-300 text-xs font-semibold">
-          <BarChart2 className="w-3.5 h-3.5" />
-          <span>Scientific Structure Analytics</span>
+        <div className="eyebrow mb-1">
+          <span className="eyebrow-line" />
+          <span>STATISTICAL &amp; ARCHITECTURAL FORENSICS</span>
         </div>
-        <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">
-          Structural Analysis & Consistency Dashboard
+        <h1 className="font-serif text-3xl sm:text-4xl text-[var(--forest)] font-normal tracking-tight">
+          Structural Analysis &amp; Consistency Dashboard
         </h1>
-        <p className="text-sm text-slate-500 dark:text-slate-400">
-          Quantify secondary structure compositions, detect contiguous structural segments, and examine dual-head consistency.
+        <p className="text-sm text-[var(--ink-muted)] max-w-3xl">
+          Quantify secondary structure compositions, detect contiguous structural segments, and examine dual-head agreement between Q8 and Q3 prediction branches.
         </p>
       </div>
 
       {/* Sequence Selector Input Bar */}
-      <div className="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4">
+      <div className="p-4 rounded-2xl bg-[var(--surface)] border border-[var(--line)] shadow-xs flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4">
         <div className="flex-1 flex items-center space-x-3">
           <input
             type="text"
             value={seqId}
             onChange={(e) => setSeqId(e.target.value)}
             placeholder="Protein ID"
-            className="w-36 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs font-mono font-semibold"
+            className="w-36 px-3 py-1.5 rounded-xl border border-[var(--line)] bg-[var(--paper)] text-xs font-mono font-semibold text-[var(--ink)]"
           />
           <input
             type="text"
             value={sequence}
             onChange={(e) => setSequence(e.target.value)}
             placeholder="Sequence..."
-            className="flex-1 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs font-mono truncate"
+            className="flex-1 px-3 py-1.5 rounded-xl border border-[var(--line)] bg-[var(--paper)] text-xs font-mono truncate text-[var(--ink)]"
           />
         </div>
 
@@ -96,24 +100,24 @@ function AnalysisContent() {
           <button
             onClick={handleRunNew}
             disabled={loading}
-            className="flex items-center space-x-1.5 px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-700 disabled:opacity-50 text-white text-xs font-semibold shadow-xs transition-colors"
+            className="flex items-center space-x-1.5 px-4 py-2 rounded-xl bg-[var(--forest)] hover:bg-[#1a4a3c] disabled:opacity-50 text-[#f5f6ee] text-xs font-semibold shadow-xs transition-colors"
           >
-            <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
+            <RefreshCw className={`w-3.5 h-3.5 text-[var(--lime)] ${loading ? 'animate-spin' : ''}`} />
             <span>Re-Analyze</span>
           </button>
         </div>
       </div>
 
       {loading && (
-        <div className="p-12 text-center rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs space-y-3">
-          <RefreshCw className="w-8 h-8 mx-auto text-purple-600 animate-spin" />
-          <h4 className="font-semibold text-slate-900 dark:text-white">Calculating Structural Metrics...</h4>
-          <p className="text-xs text-slate-500">Segment detection, entropy profiling, and consistency analysis</p>
+        <div className="p-12 text-center rounded-2xl bg-[var(--surface)] border border-[var(--line)] shadow-xs space-y-3">
+          <RefreshCw className="w-8 h-8 mx-auto text-[var(--forest)] animate-spin" />
+          <h4 className="font-serif text-base font-semibold text-[var(--ink)]">Calculating Structural Metrics...</h4>
+          <p className="text-xs text-[var(--ink-muted)]">Segment detection, entropy profiling, and consistency analysis</p>
         </div>
       )}
 
       {error && (
-        <div className="p-4 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 text-rose-800 dark:text-rose-300 text-sm">
+        <div className="p-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-sm">
           {error}
         </div>
       )}
@@ -122,40 +126,40 @@ function AnalysisContent() {
         <div className="space-y-8">
           {/* Key Summary Metric Cards */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs space-y-1">
-              <span className="text-xs text-slate-400 font-medium uppercase tracking-wider">Sequence Length</span>
-              <div className="text-2xl font-extrabold text-slate-900 dark:text-white font-mono">
-                {analysis.sequence_length} <span className="text-xs font-normal text-slate-400">residues</span>
+            <div className="p-5 rounded-2xl bg-[var(--surface)] border border-[var(--line)] shadow-xs space-y-1">
+              <span className="text-xs text-[var(--ink-muted)] font-medium uppercase tracking-wider">Sequence Span</span>
+              <div className="text-2xl font-serif text-[var(--forest)] font-normal">
+                {analysis.sequence_length} <span className="text-xs font-sans text-[var(--ink-muted)]">residues</span>
               </div>
-              <p className="text-[11px] text-slate-500">Total polypeptide chain span</p>
+              <p className="text-[11px] text-[var(--ink-muted)]">Total polypeptide chain length</p>
             </div>
 
-            <div className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs space-y-1">
-              <span className="text-xs text-slate-400 font-medium uppercase tracking-wider">Longest Alpha-Helix</span>
-              <div className="text-2xl font-extrabold text-purple-600 dark:text-purple-400 font-mono">
-                {analysis.summary.longest_helix_length} <span className="text-xs font-normal text-slate-400">residues</span>
+            <div className="p-5 rounded-2xl bg-[var(--surface)] border border-[var(--line)] shadow-xs space-y-1">
+              <span className="text-xs text-[var(--ink-muted)] font-medium uppercase tracking-wider">Longest Alpha-Helix</span>
+              <div className="text-2xl font-serif text-[#1e785e] font-normal">
+                {analysis.summary.longest_helix_length} <span className="text-xs font-sans text-[var(--ink-muted)]">residues</span>
               </div>
-              <p className="text-[11px] text-slate-500 truncate font-mono">
+              <p className="text-[11px] text-[var(--ink-muted)] truncate font-mono">
                 {analysis.summary.longest_helix_subsequence || 'None'}
               </p>
             </div>
 
-            <div className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs space-y-1">
-              <span className="text-xs text-slate-400 font-medium uppercase tracking-wider">Longest Beta-Strand</span>
-              <div className="text-2xl font-extrabold text-sky-600 dark:text-sky-400 font-mono">
-                {analysis.summary.longest_strand_length} <span className="text-xs font-normal text-slate-400">residues</span>
+            <div className="p-5 rounded-2xl bg-[var(--surface)] border border-[var(--line)] shadow-xs space-y-1">
+              <span className="text-xs text-[var(--ink-muted)] font-medium uppercase tracking-wider">Longest Beta-Strand</span>
+              <div className="text-2xl font-serif text-[#d97706] font-normal">
+                {analysis.summary.longest_strand_length} <span className="text-xs font-sans text-[var(--ink-muted)]">residues</span>
               </div>
-              <p className="text-[11px] text-slate-500 truncate font-mono">
+              <p className="text-[11px] text-[var(--ink-muted)] truncate font-mono">
                 {analysis.summary.longest_strand_subsequence || 'None'}
               </p>
             </div>
 
-            <div className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs space-y-1">
-              <span className="text-xs text-slate-400 font-medium uppercase tracking-wider">Q8/Q3 Consistency</span>
-              <div className="text-2xl font-extrabold text-emerald-600 dark:text-emerald-400 font-mono">
+            <div className="p-5 rounded-2xl bg-[var(--surface)] border border-[var(--line)] shadow-xs space-y-1">
+              <span className="text-xs text-[var(--ink-muted)] font-medium uppercase tracking-wider">Dual-Head Consistency</span>
+              <div className="text-2xl font-serif text-[var(--forest)] font-normal">
                 {analysis.consistency.agreement_percentage}%
               </div>
-              <p className="text-[11px] text-slate-500">
+              <p className="text-[11px] text-[var(--ink-muted)]">
                 {analysis.consistency.disagreements_count} head disagreements
               </p>
             </div>
@@ -164,31 +168,33 @@ function AnalysisContent() {
           {/* Composition Breakdown: Q3 and Q8 */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {/* Q3 Composition */}
-            <div className="p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs space-y-4">
-              <h3 className="font-bold text-base text-slate-900 dark:text-white flex items-center space-x-2">
-                <PieChart className="w-4 h-4 text-purple-600" />
-                <span>Q3 Secondary Structure Composition</span>
-              </h3>
-              <div className="space-y-3">
+            <div className="p-6 rounded-2xl bg-[var(--surface)] border border-[var(--line)] shadow-xs space-y-4">
+              <div className="border-b border-[var(--line)] pb-3">
+                <h3 className="font-serif font-bold text-base text-[var(--ink)] flex items-center space-x-2">
+                  <PieChart className="w-4 h-4 text-[var(--forest)]" />
+                  <span>Q3 Secondary Structure Composition</span>
+                </h3>
+              </div>
+              <div className="space-y-3.5">
                 {Object.entries(analysis.q3_composition).map(([state, data]) => {
                   const meta = Q3_METADATA[state] || Q3_METADATA['C'];
                   return (
-                    <div key={state} className="space-y-1 text-xs">
-                      <div className="flex items-center justify-between font-semibold">
+                    <div key={state} className="space-y-1.5 text-xs">
+                      <div className="flex items-center justify-between font-medium">
                         <span className="flex items-center space-x-2">
                           <span
                             style={{ backgroundColor: meta.color }}
-                            className="w-3.5 h-3.5 rounded text-white text-[10px] flex items-center justify-center"
+                            className="w-4 h-4 rounded text-white text-[10px] font-bold flex items-center justify-center font-mono"
                           >
                             {state}
                           </span>
-                          <span>{meta.name}</span>
+                          <span className="text-[var(--ink)]">{meta.name}</span>
                         </span>
-                        <span className="font-mono text-slate-500">
+                        <span className="font-mono text-[var(--ink-muted)]">
                           {data.count} residues ({data.percentage}%)
                         </span>
                       </div>
-                      <div className="h-2.5 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden">
+                      <div className="h-2 rounded-full bg-[var(--line)] overflow-hidden">
                         <div
                           className="h-full rounded-full transition-all duration-300"
                           style={{
@@ -204,31 +210,33 @@ function AnalysisContent() {
             </div>
 
             {/* Q8 Composition */}
-            <div className="p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs space-y-4">
-              <h3 className="font-bold text-base text-slate-900 dark:text-white flex items-center space-x-2">
-                <BarChart2 className="w-4 h-4 text-sky-600" />
-                <span>Q8 DSSP 8-State Distribution</span>
-              </h3>
+            <div className="p-6 rounded-2xl bg-[var(--surface)] border border-[var(--line)] shadow-xs space-y-4">
+              <div className="border-b border-[var(--line)] pb-3">
+                <h3 className="font-serif font-bold text-base text-[var(--ink)] flex items-center space-x-2">
+                  <BarChart2 className="w-4 h-4 text-[var(--forest)]" />
+                  <span>Q8 DSSP 8-State Distribution</span>
+                </h3>
+              </div>
               <div className="grid grid-cols-2 gap-3 text-xs">
                 {Object.entries(analysis.q8_composition).map(([state, data]) => {
                   const meta = Q8_METADATA[state] || Q8_METADATA['C'];
                   return (
                     <div
                       key={state}
-                      className="p-3 rounded-xl border border-slate-100 dark:border-slate-800/80 bg-slate-50/50 dark:bg-slate-800/40 flex items-center justify-between"
+                      className="p-3 rounded-xl border border-[var(--line)] bg-[var(--surface-high)] flex items-center justify-between"
                     >
                       <div className="flex items-center space-x-2">
                         <span
                           style={{ backgroundColor: meta.color }}
-                          className="w-4 h-4 rounded text-white text-[10px] font-bold flex items-center justify-center"
+                          className="w-4 h-4 rounded text-white text-[10px] font-bold flex items-center justify-center font-mono"
                         >
                           {state}
                         </span>
-                        <span className="font-medium text-slate-700 dark:text-slate-300 truncate max-w-[80px]">
+                        <span className="font-medium text-[var(--ink)] truncate max-w-[85px]">
                           {meta.name}
                         </span>
                       </div>
-                      <span className="font-mono font-bold text-slate-900 dark:text-white">
+                      <span className="font-mono font-bold text-[var(--forest)]">
                         {data.percentage}%
                       </span>
                     </div>
@@ -239,27 +247,27 @@ function AnalysisContent() {
           </div>
 
           {/* Contiguous Structural Segments */}
-          <div className="p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs space-y-4">
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+          <div className="p-6 rounded-2xl bg-[var(--surface)] border border-[var(--line)] shadow-xs space-y-4">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-[var(--line)] pb-3">
               <div>
-                <h3 className="font-bold text-base text-slate-900 dark:text-white">
+                <h3 className="font-serif font-bold text-base text-[var(--ink)]">
                   Contiguous Structural Segments ({filteredSegments.length})
                 </h3>
-                <p className="text-xs text-slate-500">
-                  Continuous stretches of uniform secondary structure identified in sequence
+                <p className="text-xs text-[var(--ink-muted)]">
+                  Continuous stretches of uniform secondary structure identified along the chain
                 </p>
               </div>
 
               {/* Segment Type Filter */}
-              <div className="inline-flex rounded-lg border border-slate-200 dark:border-slate-700 p-0.5 bg-slate-50 dark:bg-slate-800 text-xs">
+              <div className="inline-flex rounded-lg border border-[var(--line)] p-0.5 bg-[var(--paper)] text-xs">
                 {(['all', 'helix', 'strand', 'coil'] as const).map((filter) => (
                   <button
                     key={filter}
                     onClick={() => setSegmentFilter(filter)}
                     className={`px-3 py-1 rounded-md font-medium capitalize transition-colors ${
                       segmentFilter === filter
-                        ? 'bg-purple-600 text-white shadow-xs'
-                        : 'text-slate-600 dark:text-slate-300'
+                        ? 'bg-[var(--forest)] text-[#f5f6ee] shadow-xs'
+                        : 'text-[var(--ink-soft)] hover:text-[var(--ink)]'
                     }`}
                   >
                     {filter}
@@ -271,33 +279,33 @@ function AnalysisContent() {
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs border-collapse">
                 <thead>
-                  <tr className="border-b border-slate-200 dark:border-slate-800 text-slate-400 font-semibold uppercase">
+                  <tr className="border-b border-[var(--line)] text-[var(--ink-muted)] font-semibold uppercase text-[10px] tracking-wider">
                     <th className="py-2.5 px-3">Type</th>
                     <th className="py-2.5 px-3">Span</th>
                     <th className="py-2.5 px-3">Length</th>
-                    <th className="py-2.5 px-3">Amino Acid Subsequence</th>
+                    <th className="py-2.5 px-3">Subsequence</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60 font-mono">
+                <tbody className="divide-y divide-[var(--line)]">
                   {filteredSegments.map((seg, idx) => {
                     const meta = Q3_METADATA[seg.class] || Q3_METADATA['C'];
                     return (
-                      <tr key={idx} className="hover:bg-slate-50 dark:hover:bg-slate-800/40">
-                        <td className="py-2 px-3 font-sans">
+                      <tr key={idx} className="hover:bg-[var(--paper)] transition-colors">
+                        <td className="py-2.5 px-3">
                           <span
-                            style={{ backgroundColor: meta.color }}
-                            className="inline-flex items-center px-2 py-0.5 rounded text-white font-bold text-[10px]"
+                            style={{ backgroundColor: meta.bgColor, color: meta.color }}
+                            className="px-2 py-0.5 rounded font-mono font-semibold text-[11px]"
                           >
-                            {seg.class} - {meta.name}
+                            {seg.class} &middot; {meta.name}
                           </span>
                         </td>
-                        <td className="py-2 px-3 text-slate-600 dark:text-slate-300">
-                          {seg.start} – {seg.end}
+                        <td className="py-2.5 px-3 font-mono text-[var(--ink)]">
+                          {seg.start + 1} &rarr; {seg.end + 1}
                         </td>
-                        <td className="py-2 px-3 font-bold text-slate-900 dark:text-white">
-                          {seg.length}
+                        <td className="py-2.5 px-3 font-mono font-semibold text-[var(--ink)]">
+                          {seg.length} residues
                         </td>
-                        <td className="py-2 px-3 text-purple-600 dark:text-purple-400 tracking-wider">
+                        <td className="py-2.5 px-3 font-mono text-[11px] text-[var(--ink-soft)] tracking-wider">
                           {seg.subsequence}
                         </td>
                       </tr>
@@ -308,54 +316,36 @@ function AnalysisContent() {
             </div>
           </div>
 
-          {/* Consistency & Disagreement Matrix */}
-          <div className="p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs space-y-4">
-            <div>
-              <h3 className="font-bold text-base text-slate-900 dark:text-white flex items-center space-x-2">
-                <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                <span>Dual-Head Q8 vs Q3 Consistency Audit</span>
-              </h3>
-              <p className="text-xs text-slate-500">
-                Evaluating structural agreement between independently trained Q8 and Q3 prediction heads.
+          {/* Uncertainty & High Entropy Positions */}
+          {analysis.uncertainty.high_uncertainty_positions.length > 0 && (
+            <div className="p-6 rounded-2xl bg-[var(--surface)] border border-[var(--line)] shadow-xs space-y-4">
+              <div className="flex items-center space-x-2 border-b border-[var(--line)] pb-3">
+                <AlertTriangle className="w-4 h-4 text-[var(--gold)]" />
+                <h3 className="font-serif font-bold text-base text-[var(--ink)]">
+                  High-Uncertainty Boundary Residues ({analysis.uncertainty.high_uncertainty_positions.length})
+                </h3>
+              </div>
+              <p className="text-xs text-[var(--ink-muted)]">
+                Positions where predictive Shannon entropy exceeds 1.2 bits, typically corresponding to flexible loop transitions or hinge regions:
               </p>
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3">
+                {analysis.uncertainty.high_uncertainty_positions.map((pos) => (
+                  <div
+                    key={pos.position}
+                    className="p-3 rounded-xl border border-[var(--line)] bg-[var(--surface-high)] text-center text-xs"
+                  >
+                    <div className="font-bold text-[var(--ink)] font-mono text-sm">
+                      {pos.amino_acid}
+                      <span className="text-[var(--ink-muted)] text-xs font-normal">#{pos.position}</span>
+                    </div>
+                    <div className="text-[10px] text-[var(--ink-muted)] mt-1">
+                      Entropy: <strong className="font-mono text-[var(--gold)]">{pos.entropy.toFixed(2)}</strong>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
-
-            {analysis.consistency.disagreements_count === 0 ? (
-              <div className="p-4 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 text-emerald-800 dark:text-emerald-300 text-xs">
-                Perfect 100% agreement: Every independently predicted Q8 state maps faithfully to its predicted Q3 counterpart.
-              </div>
-            ) : (
-              <div className="space-y-3">
-                <div className="text-xs text-slate-600 dark:text-slate-400">
-                  Detected <strong>{analysis.consistency.disagreements_count}</strong> positions where Q8 projected state contradicts Q3 head:
-                </div>
-                <div className="max-h-60 overflow-y-auto border border-slate-200 dark:border-slate-800 rounded-xl">
-                  <table className="w-full text-left text-xs">
-                    <thead className="bg-slate-50 dark:bg-slate-800/60 sticky top-0 text-slate-500">
-                      <tr>
-                        <th className="py-2 px-3">Position</th>
-                        <th className="py-2 px-3">Residue</th>
-                        <th className="py-2 px-3">Predicted Q8</th>
-                        <th className="py-2 px-3">Projected Q3</th>
-                        <th className="py-2 px-3">Predicted Q3</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-100 dark:divide-slate-800 font-mono">
-                      {analysis.consistency.disagreements.map((dis, idx) => (
-                        <tr key={idx} className="hover:bg-slate-50 dark:hover:bg-slate-800/40">
-                          <td className="py-1.5 px-3">{dis.position}</td>
-                          <td className="py-1.5 px-3 font-bold text-purple-600">{dis.amino_acid}</td>
-                          <td className="py-1.5 px-3">{dis.predicted_q8}</td>
-                          <td className="py-1.5 px-3 text-amber-600">{dis.projected_q3}</td>
-                          <td className="py-1.5 px-3 text-rose-600 font-bold">{dis.predicted_q3}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            )}
-          </div>
+          )}
         </div>
       )}
     </div>
@@ -364,7 +354,13 @@ function AnalysisContent() {
 
 export default function AnalysisPage() {
   return (
-    <Suspense fallback={<div className="p-8 text-center text-xs text-slate-400">Loading analysis workspace...</div>}>
+    <Suspense
+      fallback={
+        <div className="p-12 text-center text-xs text-[var(--ink-muted)]">
+          Loading structural analysis dashboard...
+        </div>
+      }
+    >
       <AnalysisContent />
     </Suspense>
   );
