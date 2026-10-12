@@ -14,7 +14,7 @@
 
 ## 1. Scientific & Engineering Highlights
 
-- **100% Genuine Neural Inference**: Executes the exact trained competition champion weights (`best_model_bigru_v10.pth`). Never fabricates or hallucinates structural labels.
+- **100% Genuine Neural Inference**: Executes the exact trained competition champion weights (`models/best_model_bigru_v10.pth`). Never fabricates or hallucinates structural labels.
 - **Dual-Head Architecture**: Predicts both fine-grained Kabsch-Sander 8-state (Q8) and canonical 3-state (Q3) secondary structure classes simultaneously.
 - **Forensic Recurrent Sequence Dynamics**: Eliminates trailing padding noise in single-sequence queries by processing exact length $L$ directly without artificial batch padding.
 - **Interactive 3-Row Secondary Structure Viewer**: Synchronized, residue-aligned visualizer rendering Amino Acid, Q8, and Q3 with hover tooltips, class probability breakdowns, and predictive entropy ($H = -\sum p \log p$).
@@ -92,14 +92,6 @@ nppe2/
 │   │   ├── services/         # Singleton inference and export services
 │   │   └── main.py           # FastAPI app entry point
 │   └── tests/                # API integration test suite
-├── ml/                       # Modular Machine Learning Package
-│   ├── analysis/             # Segments, compositions, and consistency analysis
-│   ├── datasets/             # ProteinDataset and length-grouped collator
-│   ├── evaluation/           # Macro-F1, confusion matrices, length stratification
-│   ├── inference/            # Production InferenceEngine
-│   ├── models/               # Champion model architecture & weights loader
-│   ├── preprocessing/        # Vocabularies, sanitizers, and FASTA parser
-│   └── training/             # Production trainer with AMP and cosine scheduling
 ├── frontend/                 # Next.js 14 App Router UI
 │   ├── src/app/
 │   │   ├── page.tsx          # Overview & Hero Dashboard
@@ -111,7 +103,45 @@ nppe2/
 │   │   ├── batch/            # High-Throughput Multi-FASTA Batch Processing
 │   │   └── docs/             # DSSP Principles & Operational Boundaries
 │   └── src/components/       # Reusable UI (StructureViewer, Navbar, Footer)
+├── ml/                       # Modular Machine Learning Package
+│   ├── analysis/             # Segments, compositions, and consistency analysis
+│   ├── datasets/             # ProteinDataset and length-grouped collator
+│   ├── evaluation/           # Macro-F1, confusion matrices, length stratification
+│   ├── inference/            # Production InferenceEngine
+│   ├── models/               # Champion model architecture & weights loader
+│   ├── preprocessing/        # Vocabularies, sanitizers, and FASTA parser
+│   └── training/             # Production trainer with AMP and cosine scheduling
+├── models/                   # Serialized PyTorch Checkpoints (Git LFS)
+│   ├── README.md             # Weights registry & architectural specs
+│   ├── best_model_bigru_v10.pth  # 🏆 Champion Model Weights (75.7 MB)
+│   ├── best_model_bigru_v8.pth   # Improved Bi-GRU checkpoint (130.9 MB)
+│   ├── best_model_bigru_v8_5.pth # Bi-GRU v8.5 with Label Smoothing (130.9 MB)
+│   ├── best_model_bigru.pth      # Early Bi-GRU baseline checkpoint (130.9 MB)
+│   └── best_model_v13.pth        # Enhanced Bi-GRU v13 checkpoint (35.4 MB)
+├── notebooks/                # Chronological Research & Benchmarks (01 to 14)
+│   ├── README.md             # Complete experiment catalog & validation results
+│   ├── 01_baseline_vanilla_birnn.ipynb
+│   ├── 02_optimized_vanilla_birnn.ipynb
+│   ├── 03_stabilized_vanilla_birnn.ipynb
+│   ├── 04_bidirectional_lstm.ipynb
+│   ├── 05_cnn_bilstm_attention_crf.ipynb
+│   ├── 06_stacked_bilstm_regularized.ipynb
+│   ├── 07_bidirectional_gru.ipynb
+│   ├── 08_improved_bigru_residual.ipynb
+│   ├── 09_advanced_bigru_cnn_attention.ipynb
+│   ├── 10_champion_multiscale_cnn_bigru_attention.ipynb  # 🏆 Champion Model
+│   ├── 11_bigru_crf_decoder.ipynb
+│   ├── 12_refined_bigru_crf.ipynb
+│   ├── 13_enhanced_bigru_v10_plus.ipynb
+│   └── 14_dilated_resnet_bigru.ipynb
+├── submissions/              # Official Competition Submissions
+│   ├── README.md             # Submissions log & verification notes
+│   ├── submission_bigru_v10.csv   # 🏆 Champion submission (0.4910)
+│   ├── submission_bigru_v8_5.csv
+│   ├── submission_bigru_v8.csv
+│   └── submission_bigru.csv
 ├── docs/                     # Scientific & Technical Documentation
+│   ├── writeups/             # Research writeups and experiment reports
 │   ├── repository_audit.md   # Forensic reverse-engineering report
 │   ├── model_architecture.md # Mathematical architecture specification
 │   ├── secondary_structure.md# DSSP 8-state definitions & Q3 reductions
@@ -119,13 +149,14 @@ nppe2/
 │   ├── api_reference.md      # OpenAPI REST API documentation
 │   ├── deployment.md         # Docker & production operations runbook
 │   └── model_card.md         # Comprehensive ML model card
-├── scripts/
+├── scripts/                  # Production CLI Tools & Evaluation Scripts
 │   ├── evaluate_holdout.py   # CLI to reproduce 0.4703 holdout validation
-│   └── run_inference.py      # CLI for single/batch prediction to CSV/JSON/FASTA
+│   ├── run_inference.py      # CLI for single/batch prediction to CSV/JSON/FASTA
+│   └── research/             # Experiment conversion & utility scripts
 ├── docker/                   # Dockerfiles for backend and frontend
 ├── docker-compose.yml        # Multi-container orchestration
 ├── Makefile                  # Developer workflow automation
-└── best_model_bigru_v10.pth  # Champion model weights checkpoint
+└── run_all.sh                # Automated daemon launcher script
 ```
 
 ---
@@ -173,7 +204,7 @@ All unit and integration tests execute in < 3 seconds across preprocessing, mode
 
 ### Reproduce Holdout Validation Score (0.4703)
 ```bash
-python scripts/evaluate_holdout.py --data train.csv --checkpoint best_model_bigru_v10.pth
+python scripts/evaluate_holdout.py --checkpoint models/best_model_bigru_v10.pth
 ```
 Output:
 ```

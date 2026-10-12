@@ -10,7 +10,7 @@ services:
     ports:
       - "8000:8000"
     environment:
-      - CHECKPOINT_PATH=best_model_bigru_v10.pth
+      - CHECKPOINT_PATH=models/best_model_bigru_v10.pth
       - DEVICE=cpu
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/api/v1/health"]

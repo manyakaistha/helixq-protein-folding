@@ -17,11 +17,10 @@ COPY pyproject.toml .
 # Install dependencies using uv
 RUN uv pip install --system -e .
 
-# Copy application code and model checkpoint
+# Copy application code and model checkpoints
 COPY ml/ ml/
 COPY backend/ backend/
-COPY checkpoints/ checkpoints/
-COPY best_model_bigru_v10.pth .
+COPY models/ models/
 
 # Expose port
 EXPOSE 8000

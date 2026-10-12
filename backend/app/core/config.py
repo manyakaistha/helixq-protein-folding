@@ -12,7 +12,7 @@ class Settings:
     API_V1_STR: str = "/api/v1"
     
     # Model settings
-    CHECKPOINT_PATH: str = os.getenv("CHECKPOINT_PATH", "best_model_bigru_v10.pth")
+    CHECKPOINT_PATH: str = os.getenv("CHECKPOINT_PATH", "models/best_model_bigru_v10.pth")
     DEVICE: str = os.getenv("DEVICE", "auto")
     MAX_SEQUENCE_LENGTH: int = 2500
     MAX_BATCH_SIZE: int = 128

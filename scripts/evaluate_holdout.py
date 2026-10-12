@@ -20,7 +20,7 @@ from ml.evaluation.metrics import evaluate_dataset
 def main():
     parser = argparse.ArgumentParser(description="Reproduce validation score on holdout split")
     parser.add_argument("--data", default="sep-25-dl-gen-ai-nppe-2/train.csv", help="Path to raw training CSV")
-    parser.add_argument("--checkpoint", default="best_model_bigru_v10.pth", help="Path to model checkpoint")
+    parser.add_argument("--checkpoint", default="models/best_model_bigru_v10.pth", help="Path to model checkpoint")
     parser.add_argument("--batch-size", type=int, default=32, help="Batch size for validation")
     parser.add_argument("--seed", type=int, default=42, help="Random seed for train/val split")
     args = parser.parse_args()
@@ -28,6 +28,13 @@ def main():
     data_path = args.data
     if not os.path.exists(data_path) and os.path.exists("sep-25-dl-gen-ai-nppe-2/train.csv"):
         data_path = "sep-25-dl-gen-ai-nppe-2/train.csv"
+
+    checkpoint_path = args.checkpoint
+    if not os.path.exists(checkpoint_path):
+        if os.path.exists(os.path.join("models", checkpoint_path)):
+            checkpoint_path = os.path.join("models", checkpoint_path)
+        elif os.path.exists(os.path.join("checkpoints", checkpoint_path)):
+            checkpoint_path = os.path.join("checkpoints", checkpoint_path)
 
     print(f"Loading dataset from: {data_path}")
     df = pd.read_csv(data_path)
@@ -40,7 +47,7 @@ def main():
     device = get_default_device()
     print(f"Evaluating on device: {device}")
 
-    model, meta = load_champion_model(checkpoint_path=args.checkpoint, device=device)
+    model, meta = load_champion_model(checkpoint_path=checkpoint_path, device=device)
 
     val_dataset = ProteinDataset(val_df, mode="train")
     val_loader = DataLoader(

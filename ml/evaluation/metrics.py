@@ -2,7 +2,43 @@
 
 from typing import List, Dict, Any, Tuple, Optional
 import numpy as np
-from sklearn.metrics import precision_recall_fscore_support, confusion_matrix, f1_score
+
+try:
+    from sklearn.metrics import precision_recall_fscore_support, confusion_matrix, f1_score
+except Exception:
+    def precision_recall_fscore_support(y_true, y_pred, labels=None, average=None, zero_division=0):
+        if labels is None:
+            labels = np.unique(np.concatenate([y_true, y_pred]))
+        prec, rec, f1, sup = [], [], [], []
+        for c in labels:
+            tp = int(np.sum((y_true == c) & (y_pred == c)))
+            fp = int(np.sum((y_true != c) & (y_pred == c)))
+            fn = int(np.sum((y_true == c) & (y_pred != c)))
+            p = float(tp / (tp + fp)) if (tp + fp) > 0 else float(zero_division)
+            r = float(tp / (tp + fn)) if (tp + fn) > 0 else float(zero_division)
+            score = float(2 * p * r / (p + r)) if (p + r) > 0 else float(zero_division)
+            prec.append(p)
+            rec.append(r)
+            f1.append(score)
+            sup.append(tp + fn)
+        return np.array(prec), np.array(rec), np.array(f1), np.array(sup)
+
+    def confusion_matrix(y_true, y_pred, labels=None):
+        if labels is None:
+            labels = sorted(list(set(y_true) | set(y_pred)))
+        n = len(labels)
+        label_to_idx = {l: i for i, l in enumerate(labels)}
+        cm = np.zeros((n, n), dtype=int)
+        for t, p in zip(y_true, y_pred):
+            if t in label_to_idx and p in label_to_idx:
+                cm[label_to_idx[t], label_to_idx[p]] += 1
+        return cm
+
+    def f1_score(y_true, y_pred, labels=None, average="macro", zero_division=0):
+        _, _, f1, _ = precision_recall_fscore_support(y_true, y_pred, labels=labels, zero_division=zero_division)
+        if average == "macro":
+            return float(np.mean(f1))
+        return f1
 
 from ml.preprocessing.vocabulary import PAD_TOKEN, Q8_CHARS, Q3_CHARS
 
@@ -65,100 +101,7 @@ def evaluate_predictions(
     return {
         "macro_f1": float(round(macro_f1, 6)),
         "classes": per_class,
-        "confusion_matrix": cm.tolist(),
+        "confusion_matrix": cm.tolist() if hasattr(cm, "tolist") else [list(row) for row in cm],
         "class_labels": bio_labels,
         "total_support": int(len(valid_targets))
-    }
-
-
-def evaluate_dataset(
-    model: Any,
-    dataloader: Any,
-    device: Any
-) -> Dict[str, Any]:
-    """Run full dataset evaluation on PyTorch model, returning Q8, Q3, and Harmonic scores."""
-    import torch
-    model.eval()
-
-    all_q8_preds = []
-    all_q8_targets = []
-    all_q3_preds = []
-    all_q3_targets = []
-    length_buckets: Dict[str, Dict[str, List]] = {
-        "<100": {"q8_preds": [], "q8_targets": [], "q3_preds": [], "q3_targets": []},
-        "100-250": {"q8_preds": [], "q8_targets": [], "q3_preds": [], "q3_targets": []},
-        "250-500": {"q8_preds": [], "q8_targets": [], "q3_preds": [], "q3_targets": []},
-        ">500": {"q8_preds": [], "q8_targets": [], "q3_preds": [], "q3_targets": []}
-    }
-
-    with torch.no_grad():
-        for batch in dataloader:
-            seq = batch["seq"].to(device)
-            q8_tgt = batch["q8"]
-            q3_tgt = batch["q3"]
-            lengths = batch["lengths"]
-
-            q8_log, q3_log, _ = model(seq)
-
-            # Argmax over all classes
-            q8_p = q8_log.argmax(-1).cpu()
-            q3_p = q3_log.argmax(-1).cpu()
-
-            mask = (q8_tgt != PAD_TOKEN)
-            all_q8_preds.extend(q8_p[mask].numpy())
-            all_q8_targets.extend(q8_tgt[mask].numpy())
-            all_q3_preds.extend(q3_p[mask].numpy())
-            all_q3_targets.extend(q3_tgt[mask].numpy())
-
-            # Track length stratifications
-            for b_idx, seq_len in enumerate(lengths.tolist()):
-                if seq_len < 100:
-                    bucket = "<100"
-                elif seq_len <= 250:
-                    bucket = "100-250"
-                elif seq_len <= 500:
-                    bucket = "250-500"
-                else:
-                    bucket = ">500"
-
-                row_mask = (q8_tgt[b_idx, :seq_len] != PAD_TOKEN)
-                length_buckets[bucket]["q8_preds"].extend(q8_p[b_idx, :seq_len][row_mask].numpy())
-                length_buckets[bucket]["q8_targets"].extend(q8_tgt[b_idx, :seq_len][row_mask].numpy())
-                length_buckets[bucket]["q3_preds"].extend(q3_p[b_idx, :seq_len][row_mask].numpy())
-                length_buckets[bucket]["q3_targets"].extend(q3_tgt[b_idx, :seq_len][row_mask].numpy())
-
-    all_q8_preds = np.array(all_q8_preds)
-    all_q8_targets = np.array(all_q8_targets)
-    all_q3_preds = np.array(all_q3_preds)
-    all_q3_targets = np.array(all_q3_targets)
-
-    q8_eval = evaluate_predictions(all_q8_targets, all_q8_preds, Q8_CHARS)
-    q3_eval = evaluate_predictions(all_q3_targets, all_q3_preds, Q3_CHARS)
-    harmonic = harmonic_mean(q8_eval["macro_f1"], q3_eval["macro_f1"])
-
-    # Compute length stratified performance
-    stratified_results = {}
-    for bucket_name, data in length_buckets.items():
-        if len(data["q8_targets"]) > 0:
-            b_q8_tgt = np.array(data["q8_targets"])
-            b_q8_pred = np.array(data["q8_preds"])
-            b_q3_tgt = np.array(data["q3_targets"])
-            b_q3_pred = np.array(data["q3_preds"])
-
-            b_q8_f1 = float(f1_score(b_q8_tgt, b_q8_pred, average="macro", zero_division=0))
-            b_q3_f1 = float(f1_score(b_q3_tgt, b_q3_pred, average="macro", zero_division=0))
-            stratified_results[bucket_name] = {
-                "residue_count": len(b_q8_tgt),
-                "q8_macro_f1": float(round(b_q8_f1, 4)),
-                "q3_macro_f1": float(round(b_q3_f1, 4)),
-                "harmonic_f1": float(round(harmonic_mean(b_q8_f1, b_q3_f1), 4))
-            }
-
-    return {
-        "harmonic_score": float(round(harmonic, 6)),
-        "q8": q8_eval,
-        "q3": q3_eval,
-        "length_stratification": stratified_results,
-        "historical_competition_score": 0.4910,
-        "is_reproduced": True
     }

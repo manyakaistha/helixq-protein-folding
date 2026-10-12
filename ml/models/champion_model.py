@@ -186,15 +186,17 @@ def load_champion_model(
 ) -> Tuple[MemoryEfficientBiGRU, Dict[str, Any]]:
     """Instantiate and load the champion model weights from checkpoint.
     
-    Searches standard checkpoint locations if checkpoint_path is None.
+    Searches standard checkpoint locations in models/ and checkpoints/ if checkpoint_path is None.
     """
     if device is None:
         device = get_default_device()
 
     candidate_paths = [
         checkpoint_path,
+        os.path.join(os.path.dirname(__file__), "..", "..", "models", "best_model_bigru_v10.pth"),
         os.path.join(os.path.dirname(__file__), "..", "..", "checkpoints", "best_model_bigru_v10.pth"),
         os.path.join(os.path.dirname(__file__), "..", "..", "best_model_bigru_v10.pth"),
+        "models/best_model_bigru_v10.pth",
         "checkpoints/best_model_bigru_v10.pth",
         "best_model_bigru_v10.pth"
     ]
@@ -210,7 +212,10 @@ def load_champion_model(
         )
 
     model = MemoryEfficientBiGRU(use_checkpointing=use_checkpointing)
-    checkpoint_data = torch.load(resolved_path, map_location=device)
+    try:
+        checkpoint_data = torch.load(resolved_path, map_location=device, weights_only=False)
+    except TypeError:
+        checkpoint_data = torch.load(resolved_path, map_location=device)
 
     if isinstance(checkpoint_data, dict) and "model_state_dict" in checkpoint_data:
         model.load_state_dict(checkpoint_data["model_state_dict"])
